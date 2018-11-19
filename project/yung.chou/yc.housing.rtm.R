@@ -8,9 +8,6 @@ library(psych)
 source('yc.housing.rtm.train.prep.R')
 #names(train.prep)
 
-# Remove outliers and Cook's Distance violators
-#train <- train[-c(250,336,1025),]
-
 #----------------------
 # Imputation of Values
 #----------------------
@@ -28,17 +25,18 @@ write.csv(train.imp, 'data/yc.train.imp.csv')
 boruta.selected.features = c(
 
   "MSSubClass",
-  #"MSZoning",     "LotFrontage",  "LotArea",
-  #"LandContour", "LandSlope",
+  #"MSZoning",     "LotFrontage",
+  "LotArea",
+  "LandContour", "LandSlope",
   #"Neighborhood",
-  "Condition1",   "BldgType",
+  #"Condition1",   "BldgType",
   "HouseStyle",
   #"OverallQual",
   "OverallCond",  "YearBuilt",
-  #"YearRemodAdd",
-  "Exterior1st",
+  "YearRemodAdd",
+  #"Exterior1st",
   #"Exterior2nd",
-  "MasVnrType",
+  #"MasVnrType",
   "ExterQual", "ExterCond",
   #"BsmtQual",
   #"BsmtCond",
@@ -47,49 +45,26 @@ boruta.selected.features = c(
   "BsmtFinSF1",
   #"BsmtUnfSF",
   #"TotalBsmtSF",
-  "HeatingQC", "CentralAir",
+  #"HeatingQC", "CentralAir",
   "X1stFlrSF",
   #"X2ndFlrSF",
   "GrLivArea", "FullBath",
   #"HalfBath",
   #"BedroomAbvGr", "KitchenAbvGr",
   "KitchenQual",
-  "TotRmsAbvGrd",
+  #"TotRmsAbvGrd",
   "Functional",   "Fireplaces",
   "GarageType",
-  #"GarageYrBlt",  "GarageFinish",
-  "GarageCars",
-  "GarageArea",
-  "GarageQual",   "GarageCond"
+  #"GarageYrBlt",
+  #"GarageFinish",
+  "GarageCars"
+  #"GarageArea",
+  #"GarageQual",   "GarageCond"
   #"PavedDrive",
   #"WoodDeckSF",   "OpenPorchSF"
 )
 #names(train.imp)
-# Identified by test runs
-insignificant.features <- c(
 
-  3, #"MSZoning",
-  4, #"LotFrontage",
-  10, #"LandSlope",
-  #12, #"Condition1",
-  14, #"BldgType",
-  #28, #"BsmtFinType1",
-  32, #"BsmtUnfSF",
-  35, #"HeatingQC",
-  36, #"CentralAir",
-  37, #"X1stFlrSF",
-  40, #"GrLivArea",
-  #42, #"FullBath",
-  43, #"HalfBath",
-  51, #"GarageYrBlt",
-  52, #"GarageFinish",
-  53, #"GarageCars",
-  55, #"GarageQual",
-  56, #"GarageCond",
-  #57, #"PavedDrive",
-  59  #"OpenPorchSF"
-
-)
 #-------------------------------
 # Regression Modeling: METHOD 2
 #-------------------------------
@@ -97,19 +72,19 @@ library(glmnet)
 
 #names(train.imp)
 train <- train.imp[c('Id',boruta.selected.features,'SalePrice')]
-#train <- train[-insignificant.features]
-sapply(train, function(x){round(mean(x),2)})
+#sapply(train, function(x){round(mean(x),2)})
+#names(train)
 
-names(train)
+# Remove outliers and Cook's Distance violators
+train <- train[-c(305,1170,1299),]
 
-# Insignificant features identified by test runs
 train <- train[,-1] # Leave out the Id field
 #names(train)
 
 #n <- min(nrow(train), nrow(test))
 n <- nrow(train)
 set.seed(1-1)
-train.set <- sample(1:n, 0.7*n)
+train.set <- sample(1:n, 0.8*n)
 
 #------------
 # Parameters
@@ -123,8 +98,9 @@ params <- trainControl(method='repeatedcv',
 #----------------------
 set.seed(1-2)
 lm <- train(SalePrice~.
-            +OverallCond*YearBuilt
-            +GarageType*GarageCars,
+            +GarageType*GarageCars
+            +YearRemodAdd*YearBuilt
+            +GrLivArea*FullBath,
             train[train.set,],
             method='lm', trControl=params)
 
@@ -178,7 +154,6 @@ elastic <- train(SalePrice~., train[train.set,], method='glmnet', trControl=para
 saveRDS(elastic, 'results/model.4.elastic.rds')
 plot(elastic)
 plot(elastic$finalModel, las=1, xvar='lambda', label=TRUE)
-
 plot(elastic$finalModel, las=1, xvar='dev',    label=TRUE)
 plot(varImp(elastic))
 
@@ -213,8 +188,8 @@ predict.test <- predict(elastic, train[-train.set,])
 testing  <- sqrt(mean((train[-train.set,]$SalePrice - predict.test)^2))
 
 cat('mse trianing = ', training, ', testing = ', testing)
-plot(predict.train, las=1, cex.axis=0.7, main='Prediction by Training Data', xlab='Training Data')
-plot(predict.test,  las=1, cex.axis=0.7, main='Prediction by Testing Data' , xlab='Testing Data' )
+#plot(predict.train, las=1, cex.axis=0.7, main='Prediction by Training Data', xlab='Training Data')
+#plot(predict.test,  las=1, cex.axis=0.7, main='Prediction by Testing Data' , xlab='Testing Data' )
 
 #------------
 
@@ -235,7 +210,7 @@ prediction.lasso   <- predict(lasso  , test)
 prediction.elastic <- predict(elastic, test)
 write.csv(prediction.elastic, 'results/prediction.house.price.elastic.csv' )
 
-plot(prediction.lm, las=1, cex.axis=0.7, main='Prediction by lm' , xlab='Test Dataset' )
-plot(prediction.ridge, las=1, cex.axis=0.7, main='Prediction by ridge' , xlab='Test Dataset' )
-plot(prediction.lasso, las=1, cex.axis=0.7, main='Prediction by lasso' , xlab='Test Dataset' )
-plot(prediction.elastic, las=1, cex.axis=0.7, main='Prediction by elastic' , xlab='Test Dataset' )
+#plot(prediction.lm, las=1, cex.axis=0.7, main='Prediction by lm' , xlab='Test Dataset' )
+#plot(prediction.ridge, las=1, cex.axis=0.7, main='Prediction by ridge' , xlab='Test Dataset' )
+#plot(prediction.lasso, las=1, cex.axis=0.7, main='Prediction by lasso' , xlab='Test Dataset' )
+#plot(prediction.elastic, las=1, cex.axis=0.7, main='Prediction by elastic' , xlab='Test Dataset' )
