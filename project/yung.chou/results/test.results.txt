@@ -1,0 +1,39 @@
+Linear Regression 
+
+1021 samples
+  18 predictor
+
+No pre-processing
+Resampling: Cross-Validated (10 fold, repeated 5 times) 
+Summary of sample sizes: 918, 921, 920, 918, 919, 919, ... 
+Resampling results:
+
+  RMSE      Rsquared   MAE     
+  29691.38  0.8640733  20842.67
+
+Tuning parameter 'intercept' was held constant at a value of TRUE
+
+
+#-------------------------------
+Ridge Regression
+
+Tuning parameter 'alpha' was held constant at a value of 0
+RMSE was used to select the optimal model using the smallest value.
+The final values used for the model were 
+alpha = 0 and lambda = 5094.138.
+
+#-------------------------------
+Lasso Regression
+
+Tuning parameter 'alpha' was held constant at a value of 1
+RMSE was used to select the optimal model using the smallest value.
+The final values used for the model were 
+alpha = 1 and lambda = 84.97534.
+
+#-------------------------------
+Elastic Net
+
+RMSE was used to select the optimal model using the smallest value.
+The final values used for the model were 
+alpha = 0.012 and lambda
+ = 1668.101.
