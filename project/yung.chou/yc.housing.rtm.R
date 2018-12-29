@@ -111,7 +111,7 @@ plotit <- FALSE
 if(plotit){
 
 # Distribution plot of SalePrice
-par(mfrow=c(1,1),mar=c(4,4,1,1),mgp=c(3,1,0)
+par(mfrow=c(1,1),mar=c(2,5,1,1)+0.1,mgp=c(3.5,1,0)
 );hist(train$SalePrice,las=1,col='lightblue',freq=FALSE
      ,ylim=c(0,max(density(train$SalePrice)$y))
      ,main='SalePrice Distribution',xlab='log(SalePrice)'
@@ -139,7 +139,9 @@ sapply(numeric, function(x){
 if (!require('psych')) install.packages('psych'); library(psych)
 pairs.panels(scale(train[c(numeric,'SalePrice')]),las=1,cex.cor=3,lm=TRUE,stars=TRUE)
 
-pairs.panels(scale(train),las=1,cex.cor=5,lm=TRUE,stars=TRUE, main='Train Dataset')
+str(train)
+#par(mfrow=c(1,1),mar=c(1,1,1,1))
+pairs.panels(scale(train),las=1,cex.cor=10,lm=TRUE,stars=TRUE)
 
 # Correlation plot
 if (!require('corrplot')) install.packages('corrplot'); library(corrplot)
@@ -156,7 +158,7 @@ ggcorrplot(round(cor(train),1),type="lower",lab=TRUE,title='Train Dataset Correl
 #names(train)
 
   # Each Variables vs. SalePrice
-  par(mfrow=c(ceiling(length(train)/4),4),mar=c(2,5,2,2)+0.5, mgp=c(3.7,1,0)
+  par(mfrow=c(ceiling(length(train)/4),4),mar=c(2,5,2,1)+0.1, mgp=c(3.7,1,0)
   );for (i in names(train[-17])){
     plot(train[,i],train[,17],main=i,las=1,ylab='SalePrice')
   };par(mfrow=c(1,1),mar=c(1,1,1,1),mgp=c(3,1,0))
@@ -482,6 +484,8 @@ p3d.rmse <- plot_ly(resamp$values,mode="markers"
           ,xaxis = list(title = 'Lasso~RMSE')
           ,zaxis = list(title = 'Linear~RMSE')));p3d.rmse
 
+saveRDS(p3d.rmse,'14032/5.p3d.rmse.rds')
+
 p3d.Rsquared <- plot_ly(resamp$values,mode="markers"
                     #               ,colors=c("green","blue")
                     ,y =resamp$values$'Ridege~Rsquared'
@@ -497,6 +501,8 @@ p3d.Rsquared <- plot_ly(resamp$values,mode="markers"
           ,xaxis = list(title = 'Lasso~Rsquared')
           ,zaxis = list(title = 'Linear~Rsquared')));p3d.Rsquared
 
+saveRDS(p3d.Rsquared,'14032/5.p3d.rsquared.rds')
+
 p3d.MAE <- plot_ly(resamp$values,mode="markers"
                         #               ,colors=c("green","blue")
                         ,y =resamp$values$'Ridege~MAE'
@@ -511,6 +517,8 @@ p3d.MAE <- plot_ly(resamp$values,mode="markers"
            yaxis = list(title = 'Ridege~MAE')
           ,xaxis = list(title = 'Lasso~MAE')
           ,zaxis = list(title = 'Linear~MAE')));p3d.MAE
+
+saveRDS(p3d.MAE,'14032/5.p3d.mae.rds')
 
 #---------------
 # 6. PREDICTION

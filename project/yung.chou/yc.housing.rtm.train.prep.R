@@ -6,7 +6,7 @@ train.prep.org <- read.csv('data/train.csv', stringsAsFactors=FALSE)
 cat('Imported train data set: ', nrow(train.prep.org), ' obs. of '
     ,length(train.prep.org), 'variables')
 
-#str(train.prep.org)
+#names(train.prep.org)
 
 doit <- FALSE
 
@@ -445,9 +445,8 @@ train.prep$MiscVal <- ifelse(is.na(train.prep$MiscVal),0,train.prep$MiscVal/1000
 train.prep$MiscVal <- as.numeric(train.prep$MiscVal)
 
 if(doit){
-
-par(mfrow=c(1,2),mar=c(3,5,2,1)+0.1,mgp=c(4,1,0))
-plot(train.prep$MoSold,train.prep$SalePrice,
+par(mfrow=c(1,2),mar=c(3,5,2,1)+0.1,mgp=c(4,1,0)
+);plot(train.prep$MoSold,train.prep$SalePrice,
      main='MoSold Before Conversion',las=1,ylab='SalePrice')
 
 typeof(train.prep$MoSold)
@@ -468,8 +467,8 @@ unique(train.prep$MoSold)
 summary(train.prep$MoSold)
 
 plot(train.prep$MoSold,train.prep$SalePrice,
-     main='MoSold After Conversion',las=1,ylab='SalePrice')
-par(mfrow=c(1,1),mar=c(1,1,1,1),mgp=c(3,1,0))
+     main='MoSold After Conversion',las=1,ylab='SalePrice'
+);par(mfrow=c(1,1),mar=c(1,1,1,1),mgp=c(3,1,0))
 }
 
 #unique(train.prep$YrSold)
